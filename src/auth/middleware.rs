@@ -2,9 +2,11 @@ use std::future::Future;
 use std::ops::Deref;
 use std::pin::Pin;
 use std::str::FromStr;
+#[cfg(feature = "basic-auth")]
 use std::sync::Arc;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{dev, Error, FromRequest, HttpRequest, web};
+#[cfg(feature = "basic-auth")]
 use actix_web::web::Data;
 use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, Validation};
 use anyhow::Result;

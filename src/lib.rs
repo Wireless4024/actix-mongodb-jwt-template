@@ -19,3 +19,6 @@ pub mod routes;
 
 /// this module having controller that help to manage schema
 pub mod controller;
+
+/// this module contains helper in web handle
+pub mod web;
