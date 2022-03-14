@@ -4,17 +4,20 @@ use std::pin::Pin;
 use std::str::FromStr;
 #[cfg(feature = "basic-auth")]
 use std::sync::Arc;
-use actix_web::error::ErrorUnauthorized;
+
 use actix_web::{dev, Error, FromRequest, HttpRequest, web};
+use actix_web::error::ErrorUnauthorized;
 #[cfg(feature = "basic-auth")]
 use actix_web::web::Data;
-use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, Validation};
 use anyhow::Result;
 use chrono::Duration;
 use futures::future::ready;
-use crate::controller::database::{DatabaseWrapper};
-use crate::schema::{Jwt};
+use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, Validation};
+
+use crate::manager::DatabaseWrapper;
+use crate::schema::Jwt;
 use crate::util::time::{timestamp_u64, TimestampExt};
+
 use super::login_by_username;
 
 const JWT_EXPIRE_HOUR: u64 = 24;

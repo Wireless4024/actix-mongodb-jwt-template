@@ -1,7 +1,9 @@
 use std::ops::Deref;
+
 use anyhow::bail;
 use anyhow::Result;
-use crate::controller::database::{DatabaseWrapper};
+
+use crate::manager::DatabaseWrapper;
 use crate::schema::User;
 
 /// this module contains middleware / from handle for actix

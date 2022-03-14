@@ -15,10 +15,13 @@ pub mod auth;
 pub mod schema;
 
 /// this module use to provide routing
-pub mod routes;
-
-/// this module having controller that help to manage schema
 pub mod controller;
 
 /// this module contains helper in web handle
 pub mod web;
+
+/// this module having controller that help to manage schema
+pub mod repository;
+
+/// this module store configuration or manage server resources
+pub mod manager;

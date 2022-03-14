@@ -1,15 +1,17 @@
 use std::env;
 use std::str::FromStr;
+
 use actix_cors::Cors;
-use actix_web::http::{KeepAlive};
 use actix_web::{App, HttpResponse, HttpServer, web};
+use actix_web::http::KeepAlive;
 use actix_web::middleware::DefaultHeaders;
 use actix_web::web::Data;
 use anyhow::Result;
+
 use actix_mongo_jwt_web_template::{
-	routes::auth,
-	controller::database::init_database,
-	web::error::ApiStatus
+	controller::{AuthController, Controller},
+	manager::init_database,
+	web::error::ApiStatus,
 };
 
 #[actix_rt::main]
@@ -43,8 +45,8 @@ async fn main() -> Result<()> {
 			.wrap(cors)
 			.app_data(Data::new(database.clone()));
 
-		app = app.service(auth::get_scope())
-			.default_service(web::route().to(not_found));
+		app = app.service(AuthController::create_scope())
+		         .default_service(web::route().to(not_found));
 		app
 	});
 	let server = if let Ok(socket) = std::env::var("BIND_SOCKET") {

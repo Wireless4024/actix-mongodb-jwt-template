@@ -1,18 +1,23 @@
-use actix_web::{HttpResponse, Responder, Scope, web, get, post};
-use actix_web::web::{Json};
-use serde::{Serialize, Deserialize};
-use crate::auth::middleware::{login_as_token};
-use crate::controller::database::{DatabaseRef};
+use actix_web::{get, HttpResponse, post, Responder, Scope, web};
+use actix_web::web::Json;
+use serde::{Deserialize, Serialize};
+
+use crate::auth::middleware::login_as_token;
+use crate::controller::Controller;
+use crate::manager::database::DatabaseRef;
 use crate::schema::Jwt;
 
-/// construct routes in current scope
-/// parent scope should call this method to append routes
-pub fn get_scope() -> Scope {
-	web::scope("/auth")
-		// route to /auth/login
-		.service(login)
-		// route to /auth/check
-		.service(check)
+/// this controller contains routing for authentication
+pub struct AuthController;
+
+impl Controller for AuthController {
+	fn create_scope() -> Scope {
+		web::scope("auth")
+			// route to /auth/login
+			.service(login)
+			// route to /auth/check
+			.service(check)
+	}
 }
 
 /// use to receive login information from client
@@ -41,8 +46,8 @@ struct LoginResponse {
 /// + 200 `{"token":"..jwt..token.."}`
 /// + 401 if failed to verify username or password
 #[post("/login")]
-async fn login(Json(LoginData { username, password }): Json<LoginData>,db:DatabaseRef) -> impl Responder {
-	if let Ok(token) = login_as_token(db.get_ref(),username.as_str(), password.as_str()).await {
+async fn login(Json(LoginData { username, password }): Json<LoginData>, db: DatabaseRef) -> impl Responder {
+	if let Ok(token) = login_as_token(db.get_ref(), username.as_str(), password.as_str()).await {
 		return HttpResponse::Ok().json(LoginResponse { token });
 	}
 	HttpResponse::Unauthorized().finish()

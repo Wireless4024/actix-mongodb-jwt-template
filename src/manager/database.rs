@@ -1,10 +1,11 @@
 use std::env;
 use std::ops::Deref;
-use mongodb::{Database};
-use mongodb::options::ClientOptions;
+
 use anyhow::Result;
-use super::user_controller;
-use super::user_controller::UserController;
+use mongodb::Database;
+use mongodb::options::ClientOptions;
+
+use super::super::repository::{user_repo, UserRepository};
 
 /// use to extract database in route handler
 pub type DatabaseRef = actix_web::web::Data<DatabaseWrapper>;
@@ -16,7 +17,7 @@ pub struct DatabaseWrapper(pub Database);
 
 impl DatabaseWrapper {
 	/// get user controller with pre-configured collection
-	pub fn users(&self) -> UserController {
+	pub fn users(&self) -> UserRepository {
 		self.into()
 	}
 }
@@ -45,6 +46,6 @@ pub async fn init_database() -> Result<DatabaseWrapper> {
 /// + create(ensure) index
 async fn preload(db: &DatabaseWrapper) -> Result<()> {
 	// put initialize here
-	user_controller::init(&db).await?;
+	user_repo::init(&db).await?;
 	Ok(())
 }
