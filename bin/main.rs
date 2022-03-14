@@ -9,8 +9,8 @@ use anyhow::Result;
 use actix_mongo_jwt_web_template::{
 	routes::auth,
 	controller::database::init_database,
+	web::error::ApiStatus
 };
-use actix_mongo_jwt_web_template::web::error::ApiStatus;
 
 #[actix_rt::main]
 async fn main() -> Result<()> {
