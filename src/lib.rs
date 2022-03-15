@@ -20,7 +20,7 @@ pub mod controller;
 /// this module contains helper in web handle
 pub mod web;
 
-/// this module having controller that help to manage schema
+/// this module having repository that help to manage schema
 pub mod repository;
 
 /// this module store configuration or manage server resources
