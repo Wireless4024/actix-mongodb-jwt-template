@@ -1,4 +1,3 @@
-use std::env;
 use std::str::FromStr;
 
 use actix_cors::Cors;
@@ -11,6 +10,10 @@ use anyhow::Result;
 use actix_mongo_jwt_web_template::{
 	controller::{AuthController, Controller},
 	manager::init_database,
+	util::{
+		bool_ext::BoolExt,
+		env::env,
+	},
 	web::error::ApiStatus,
 };
 
@@ -26,13 +29,9 @@ async fn main() -> Result<()> {
 			.allow_any_header()
 			.allow_any_method()
 			.supports_credentials();
-		if let Ok(hosts) = env::var("CORS_HOSTS") {
-			if !hosts.is_empty() {
-				for host in hosts.as_str().split(",") {
-					cors = cors.allowed_origin(host);
-				}
-			} else {
-				cors = Cors::permissive();
+		if let Some(hosts) = env("HTTP.CORS_HOSTS") {
+			for host in hosts.as_str().split(",") {
+				cors = cors.allowed_origin(host);
 			}
 		} else {
 			cors = Cors::permissive();
@@ -40,7 +39,7 @@ async fn main() -> Result<()> {
 
 		let mut app: App<_> = App::new()
 			.wrap(DefaultHeaders::new()
-				.add(("X-Frame-Options", "DENY"))
+				.add(("X-Frame-Options", "DENY"))// deny loading in iframe
 				.add(("Referrer-Policy", "no-referrer")))
 			.wrap(cors)
 			.app_data(Data::new(database.clone()));
@@ -49,18 +48,15 @@ async fn main() -> Result<()> {
 		         .default_service(web::route().to(not_found));
 		app
 	});
-	let server = if let Ok(socket) = std::env::var("BIND_SOCKET") {
-		let mut sock = if !socket.is_empty() { server.bind_uds(socket)? } else { server };
-		let may_bind_ip = match std::env::var("BIND_SOCKET_ONLY").as_deref() {
-			Ok("1") | Ok("true") | Ok("y") => true,
-			_ => false
-		};
+	let server = if let Some(socket) = env("HTTP.BIND_SOCKET") {
+		let mut sock = server.bind_uds(socket)?;
+		let may_bind_ip = env("HTTP.BIND_SOCKET_ONLY").may_true();
 		if may_bind_ip {
-			sock = sock.bind(std::env::var("BIND").expect("please set `BIND` in environment variable"))?
+			sock = sock.bind(env("HTTP.BIND").expect("please set `BIND` in environment variable"))?
 		}
 		sock
 	} else {
-		server.bind(std::env::var("BIND").expect("please set `BIND` in environment variable"))?
+		server.bind(env("HTTP.BIND").expect("please set `BIND` in environment variable"))?
 	};
 
 	server.keep_alive(
@@ -69,13 +65,14 @@ async fn main() -> Result<()> {
 	Ok(())
 }
 
+// not found handler this will response as json error
 async fn not_found() -> HttpResponse {
 	HttpResponse::NotFound().json(ApiStatus::error("Not Found".to_string()))
 }
 
 /// helper function
 fn keep_alive() -> Option<KeepAlive> {
-	let alive = std::env::var("KEEP_ALIVE").ok()?;
+	let alive = env("HTTP.KEEP_ALIVE")?;
 	if alive.is_empty() { return None; }
 
 	let secs = std::time::Duration::from_secs(u64::from_str(alive.as_str()).ok()?);

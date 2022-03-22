@@ -1,9 +1,10 @@
-use std::env;
 use std::ops::Deref;
 
 use anyhow::Result;
 use mongodb::Database;
 use mongodb::options::ClientOptions;
+
+use crate::util::env::env;
 
 use super::super::repository::{user_repo, UserRepository};
 
@@ -32,8 +33,8 @@ impl Deref for DatabaseWrapper {
 
 /// this function will load config from env and connect to database
 pub async fn init_database() -> Result<DatabaseWrapper> {
-	let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
-	let db_name = env::var("DATABASE_NAME").expect("DATABASE_NAME must be set in .env");
+	let db_url = env("DB.URL").expect("DATABASE_URL must be set in .env");
+	let db_name = env("DB.NAME").expect("DATABASE_NAME must be set in .env");
 	let options = ClientOptions::parse(&db_url).await?;
 	let client = mongodb::Client::with_options(options)?;
 	let db = DatabaseWrapper(client.database(db_name.as_str()));

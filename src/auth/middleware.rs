@@ -16,6 +16,7 @@ use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, 
 
 use crate::manager::DatabaseWrapper;
 use crate::schema::Jwt;
+use crate::util::env::env;
 use crate::util::time::{timestamp_u64, TimestampExt};
 
 use super::login_by_username;
@@ -28,8 +29,7 @@ static SECRET: &'static str = include_str!("../../jwt_secret");
 /// get expire timestamp for jwt
 fn jwt_expire_time() -> u64 {
 	Duration::hours(
-		std::env::var("JWT_EXPIRE_HOUR")
-			.ok()
+		env("AUTH.JWT_EXPIRE_HOUR")
 			// load as u64 because expire time -1 hour doesn't make sense
 			.and_then(|it| u64::from_str(it.as_str()).ok())
 			// minimum token time 1 hour
@@ -52,7 +52,8 @@ lazy_static::lazy_static! {
 	static ref JWT_KEY: (EncodingKey, DecodingKey) = {
 		#[cfg(not(feature = "static-jwt-secret"))]
 		{
-			let data = std::env::var_os("JWT_SECRET").map(|it|it.to_string_lossy().as_bytes().to_vec()).unwrap_or_default();
+			use crate::util::env::raw_env;
+			let data = raw_env("AUTH.JWT_SECRET").unwrap_or_default();
 			if data.is_empty() {
 				panic!("please set `JWT_SECRET` in environment variable")
 			}
