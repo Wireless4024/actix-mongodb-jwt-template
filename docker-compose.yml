@@ -1,0 +1,21 @@
+services:
+  mongo:
+    image: 'mongo'
+    volumes:
+      - ./db:/data/db
+    environment:
+     MONGO_INITDB_ROOT_USERNAME: root
+     MONGO_INITDB_ROOT_PASSWORD: toor
+    restart: unless-stopped
+  trashcan:
+    build: .
+    command: main
+    ports:
+      - "8008:8008"
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    environment:
+      '[HTTP.CORS_HOSTS]': http://localhost:8080
+      '[DB.URL]': mongodb://root:toor@mongo:27017/
+      '[DB.NAME]': actix-mongo
