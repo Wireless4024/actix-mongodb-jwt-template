@@ -15,7 +15,7 @@
 
 ## Via docker
 
-By default, it will build fresh image every build (not cached), or you can modify [`Dockerfike`](Dockerfile)
+By default, it will build fresh image every build (not cached), or you can modify [`Dockerfile`](Dockerfile)
 and [`docker-compose.yml`](docker-compose.yml) to fit your requirement
 
 Note: you don't need `.env` because you can edit in `docker-compose.yml` (environment section)
