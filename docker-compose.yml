@@ -7,7 +7,7 @@ services:
      MONGO_INITDB_ROOT_USERNAME: root
      MONGO_INITDB_ROOT_PASSWORD: toor
     restart: unless-stopped
-  trashcan:
+  main:
     build: .
     command: main
     ports:
