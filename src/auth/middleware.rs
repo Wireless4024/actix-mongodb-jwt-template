@@ -29,7 +29,7 @@ static SECRET: &'static str = include_str!("../../jwt_secret");
 /// get expire timestamp for jwt
 fn jwt_expire_time() -> u64 {
 	Duration::hours(
-		env("AUTH.JWT_EXPIRE_HOUR")
+		env("AUTH_JWT_EXPIRE_HOUR")
 			// load as u64 because expire time -1 hour doesn't make sense
 			.and_then(|it| u64::from_str(it.as_str()).ok())
 			// minimum token time 1 hour
@@ -53,7 +53,7 @@ lazy_static::lazy_static! {
 		#[cfg(not(feature = "static-jwt-secret"))]
 		{
 			use crate::util::env::raw_env;
-			let data = raw_env("AUTH.JWT_SECRET").unwrap_or_default();
+			let data = raw_env("AUTH_JWT_SECRET").unwrap_or_default();
 			if data.is_empty() {
 				panic!("please set `JWT_SECRET` in environment variable")
 			}

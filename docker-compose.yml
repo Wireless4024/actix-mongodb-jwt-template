@@ -4,8 +4,8 @@ services:
     volumes:
       - ./db:/data/db
     environment:
-     MONGO_INITDB_ROOT_USERNAME: root
-     MONGO_INITDB_ROOT_PASSWORD: toor
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: toor
     restart: unless-stopped
   main:
     build: .
@@ -16,6 +16,14 @@ services:
       - mongo
     restart: unless-stopped
     environment:
-      '[HTTP.CORS_HOSTS]': http://localhost:8080
-      '[DB.URL]': mongodb://root:toor@mongo:27017/
-      '[DB.NAME]': actix-mongo
+      HTTP_BIND: 0.0.0.0:8008
+      HTTP_BIND_SOCKET_ONLY: false
+      HTTP_CORS_HOSTS: http://localhost:8080
+      DB_URL: mongodb://root:toor@mongo:27017/
+      DB_NAME: actix-mongo
+      AUTH_JWT_SECRET: cHangEmePleaSe
+      AUTH_JWT_EXPIRE_HOUR: 24
+# trace for development
+      RUST_LOG: trace
+# info for production
+#      RUST_LOG: info

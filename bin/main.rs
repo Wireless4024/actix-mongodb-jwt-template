@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
 			.allow_any_header()
 			.allow_any_method()
 			.supports_credentials();
-		if let Some(hosts) = env("HTTP.CORS_HOSTS") {
+		if let Some(hosts) = env("HTTP_CORS_HOSTS") {
 			for host in hosts.as_str().split(",") {
 				cors = cors.allowed_origin(host);
 			}
@@ -48,15 +48,15 @@ async fn main() -> Result<()> {
 		         .default_service(web::route().to(not_found));
 		app
 	});
-	let server = if let Some(socket) = env("HTTP.BIND_SOCKET") {
+	let server = if let Some(socket) = env("HTTP_BIND_SOCKET") {
 		let mut sock = server.bind_uds(socket)?;
-		let may_bind_ip = env("HTTP.BIND_SOCKET_ONLY").may_true();
+		let may_bind_ip = env("HTTP_BIND_SOCKET_ONLY").may_true();
 		if may_bind_ip {
-			sock = sock.bind(env("HTTP.BIND").expect("please set `BIND` in environment variable"))?
+			sock = sock.bind(env("HTTP_BIND").expect("please set `HTTP_BIND` in environment variable"))?
 		}
 		sock
 	} else {
-		server.bind(env("HTTP.BIND").expect("please set `BIND` in environment variable"))?
+		server.bind(env("HTTP_BIND").expect("please set `HTTP_BIND` in environment variable"))?
 	};
 
 	server.keep_alive(
@@ -72,7 +72,7 @@ async fn not_found() -> HttpResponse {
 
 /// helper function
 fn keep_alive() -> Option<KeepAlive> {
-	let alive = env("HTTP.KEEP_ALIVE")?;
+	let alive = env("HTTP_KEEP_ALIVE")?;
 	if alive.is_empty() { return None; }
 
 	let secs = std::time::Duration::from_secs(u64::from_str(alive.as_str()).ok()?);
