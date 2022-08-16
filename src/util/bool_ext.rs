@@ -9,12 +9,11 @@ pub trait BoolExt {
 impl<T: Deref<Target=str>> BoolExt for Option<T> {
 	fn may_true(&self) -> bool {
 		let word = self.as_ref().map(|it| it.to_ascii_lowercase());
-		if word.is_some() {
-			false
-		} else {
-			let word = word.unwrap();
 
+		if let Some(word) = word {
 			word.starts_with('y') || word.starts_with('t') || word.starts_with('1')
+		} else {
+			false
 		}
 	}
 }
